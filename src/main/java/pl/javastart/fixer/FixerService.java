@@ -19,15 +19,22 @@ public class FixerService {
 
         RestTemplate restTemplate = new RestTemplate();
         //String response = restTemplate.getForObject(URL, String.class);
-        FixerResponseDto response = restTemplate.getForObject(URL, FixerResponseDto.class);
 
-        BigDecimal plnValue = response.getRates().get("PLN");
+        try{
+            FixerResponseDto response = restTemplate.getForObject(URL, FixerResponseDto.class);
 
-        return response.getRates()
-                .entrySet()
-                .stream()
-                .map(entry -> new CurrencyValue(entry.getKey(), plnValue.divide(entry.getValue(), 10, RoundingMode.HALF_UP)))
-                .collect(Collectors.toList());
+            BigDecimal plnValue = response.getRates().get("PLN");
+
+            return response.getRates()
+                    .entrySet()
+                    .stream()
+                    .map(entry -> new CurrencyValue(entry.getKey(), plnValue.divide(entry.getValue(), 10, RoundingMode.HALF_UP)))
+                    .collect(Collectors.toList());
+        } catch (Exception e){
+            throw new CurrencyDataNotAvailableException();
+        }
+
+
 
 
 //        System.out.println();
